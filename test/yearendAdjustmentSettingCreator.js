@@ -1,6 +1,6 @@
 const generator = require('../utils/generator');
 const fileName = 'yearEndAdjustmentSetting.json';
-
+const CreateItemHelper = require('../modules/createHelper');
 
 const nameMap = {
   2013: 1,
@@ -41,17 +41,11 @@ class DefaultModel {
   }
 }
 
-const createItem = (year) => {
-  const modelClass = new DefaultModel(year);
-  const item = Object.assign({}, modelClass.defaultModel);
-  return item;
-}
-
 const yearEndAdjustmentSettingCreate = () => {
   const result = [];
     for (let year = 2013; year < 2019; year++) {
-      const item = createItem(year);
-      result.push(item);
+      const helper = new CreateItemHelper(DefaultModel, [year]);
+      result.push(helper.createObjectItem());
     }
   generator.wirteJson(fileName, result);
 };
