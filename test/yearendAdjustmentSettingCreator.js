@@ -1,14 +1,26 @@
 const generator = require('../utils/generator');
 const fileName = 'yearEndAdjustmentSetting.json';
 
+
+const nameMap = {
+  2013: 1,
+  2014: 2,
+  2015: 3,
+  2016: 4,
+  2017: 5,
+  2018: 6,
+}
+
 class DefaultModel {
   constructor(year = null) {
+    const name = generator.getName(nameMap[year]);
     this.defaultModel = {
-      corporationNumber: generator.getRandomPhoneNumber(),
+      id: year.toString(),
+      corporationNumber: generator.randomByLengthWithZero(13),
       office: '東京事業所',
       officeKana: 'トウキョウジギョウショ',
-      representativeName: '社長の　太郎',
-      zipCode: generator.randomByLength(7, 7).toString(),
+      representativeName: name.name,
+      zipCode: generator.randomByLengthWithZero(7),
       prefecture: '東京都',
       city: '文京区',
       town: '本郷三丁目',
@@ -46,3 +58,5 @@ const yearEndAdjustmentSettingCreate = () => {
 
 // 実行後、./distにJSONが出力されます。
 yearEndAdjustmentSettingCreate();
+
+

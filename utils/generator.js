@@ -35,8 +35,9 @@ class Generator {
     return this.random(0, 1) === 0;
   }
 
-  randomStaffId() {
-    return this.random(10000000, 99999999);
+  getName(index) {
+    const name = names[index];
+    return name;
   }
 
   getRandomName() {
@@ -46,14 +47,13 @@ class Generator {
     return name;
   }
 
-  randomByLength(minLength, maxLength) {
-    const minStrPlusOne = `1${[...Array(minLength)].map((ignore) => '0').join('')}`;
-    const maxStrPlusOne = `9${[...Array(maxLength)].map((ignore) => '9').join('')}`;
+  randomByLengthWithZero(length) {
+    if (length <= 0 ) throw new Error('must be argumentname ="length" is greater than 0.');
+    // 最大文字数分９埋めとします。
+    const max = parseInt(''.padStart(length, 9));
 
-    const min = parseInt(minStrPlusOne.slice(0, minStrPlusOne.length - 1));
-    const max = parseInt(maxStrPlusOne.slice(0, maxStrPlusOne.length - 1));
-
-    return this.random(min, max);
+    const randomNumber = this.random(0, max);
+    return randomNumber.toString().padStart(length, '0');
   }
 
   sortFunc() {
@@ -63,18 +63,32 @@ class Generator {
     }
   }
 
+  assert(expected, actual) {
+    if (expected === actual) return true;
+    throw new Error(`assertion is failed expected:${expected} bad actual is ${actual}`);
+  }
+
   /**
-   * 正規表現面倒だから適当に11桁の数字を文字列にして返却。
+   * 正規表現面倒だから東京の電話のみ返却
    */
-  getRandomPhoneNumber() {
-    return this.random(11, 11).toString();
+  getRandomPhoneNumber(withHyphen = false) {
+    const phoneNumberPrefix = '03';
+
+    if (!withHyphen) {
+      const randomNumber = this.randomByLengthWithZero(8);
+      return `${phoneNumberPrefix}${randomNumber}`;
+    }
+    const cityCode = this.randomByLengthWithZero(4);
+    const number = this.randomByLengthWithZero(4);
+
+    return `${phoneNumberPrefix}-${cityCode}-${number}`;
   }
 
 
-  wirteJson(fileName, obj) {
+  wirteJson(fileName, obj, rootPath = null) {
     const json = JSON.stringify(obj, null, 2);
 
-    const writer = fs.createWriteStream(`${this.rootPath}${fileName}`, 'utf8');
+    const writer = fs.createWriteStream(`${rootPath || this.rootPath}${fileName}`, 'utf8');
     writer.write(json);
     writer.end();
   }
