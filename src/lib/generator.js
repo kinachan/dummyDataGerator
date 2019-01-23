@@ -1,17 +1,10 @@
-const fs = require('fs');
-const names = require('../constant/names');
+import uuid from 'uuid/v4';
+import stringFormat from './stringFormat';
+import {names} from './constant/dummyNames';
 
 class Generator {
-  constructor() {
-    this.rootPath = './dist/';
-  }
   guid() {
-    function s4() {
-      return Math.floor((1 + Math.random()) * 0x10000)
-        .toString(16)
-        .substring(1);
-    }
-    return s4() + s4() + '-' + s4() + '-' + s4() + '-' + s4() + '-' + s4() + s4() + s4();
+    return uuid();
   }
 
   formatDate(dt, hasDay = true, joinChar = '-') {
@@ -39,6 +32,19 @@ class Generator {
     const name = names[index];
     return name;
   }
+  /**
+   * 
+   * @param {*} min 例：1980-1-1
+   * @param {*} max  例：1985-12-31
+   */
+  getRandomDate(min, max, joinFormat = '/') {
+    const minTime = new Date(min).getTime();
+    const maxTime = new Date(max).getTime();
+    
+    const num = this.random(minTime, maxTime);
+    const date = new Date(num);
+    return stringFormat.dateToFormatString(date, joinFormat);
+  }
 
   getRandomName() {
     const index = this.random(0, names.length - 1);
@@ -56,17 +62,6 @@ class Generator {
     return randomNumber.toString().padStart(length, '0');
   }
 
-  sortFunc() {
-    return (a, b) => {
-      if (a === b) return 0;
-      return a > b ? 1 : -1;
-    }
-  }
-
-  assert(expected, actual) {
-    if (expected === actual) return true;
-    throw new Error(`assertion is failed expected:${expected} bad actual is ${actual}`);
-  }
 
   /**
    * 正規表現面倒だから東京の電話のみ返却
@@ -83,17 +78,7 @@ class Generator {
 
     return `${phoneNumberPrefix}-${cityCode}-${number}`;
   }
-
-
-  wirteJson(fileName, obj, rootPath = null) {
-    const json = JSON.stringify(obj, null, 2);
-
-    const writer = fs.createWriteStream(`${rootPath || this.rootPath}${fileName}`, 'utf8');
-    writer.write(json);
-    writer.end();
-  }
 }
 
 const generator = new Generator();
-
-module.exports = generator;
+export default generator;

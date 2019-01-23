@@ -1,8 +1,7 @@
 
-const mapper = require('./casesMapper');
-
-const isObject = any => typeof any === 'object' && any !== null && !Array.isArray(any);
-const isUUID = str => /([a-z]|[0-9]){8}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){4}-([a-z]|[0-9]){12}/.test(str);
+import {converterMap} from '../lib/namingConverterMap';
+import creator from '../lib/creator';
+import {isObject, isUUID} from '../lib/commonlib';
 
 const convertObject = (key, value) => {
   if (isObject(value)) {
@@ -33,7 +32,7 @@ const createLine = (convertCase, key, value) => {
 
   const type = getType(key, value);
 
-  const convertFunc = mapper[convertCase];
+  const convertFunc = converterMap[convertCase];
   const property = convertFunc(key);
   const suffix = '{get; set; }';
 
@@ -41,14 +40,12 @@ const createLine = (convertCase, key, value) => {
 };
 
 
-const changeModels = (convertCase, obj) => {
+const changeModels = (convertCase, obj, fileName = 'exsample.cs') => {
   const lines = [];
     Object.keys(obj).forEach((key) => {
       const line = createLine(convertCase, key, obj[key]);
       lines.push(line);
     });
-    const result = lines.join('\n\n');
-    console.log(result);
+    creator.writeCSharp(fileName, lines);
 };
-
-module.exports = changeModels;
+export default changeModels;

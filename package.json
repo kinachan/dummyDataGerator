@@ -1,0 +1,25 @@
+{
+  "name": "dummydatagenerator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha",
+    "start": "babel-node"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/node": "^7.2.2",
+    "@babel/preset-env": "^7.3.1",
+    "fs": "^0.0.1-security",
+    "mocha": "^5.2.0",
+    "power-assert": "^1.6.1",
+    "uuid": "^3.3.2"
+  }
+}
