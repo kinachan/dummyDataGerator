@@ -1,59 +1,59 @@
 import uuid from 'uuid/v4';
-import stringFormat from './stringFormat';
+import stringFormatter from './StringFormatter';
 import {names} from './constant/dummyNames';
 
-class Generator {
-  guid() {
+class ValueFactory {
+  guid = () => {
     return uuid();
   }
 
-  formatDate(dt, hasDay = true, joinChar = '-') {
-    let month = dt.getMonth() + 1;
-    let day = dt.getDate();
-    const year = dt.getFullYear().toString();
-    if (month.toString().length < 2) month = '0' + month;
-    if (day.toString().length < 2) day = '0' + day;
-
-    if (!hasDay) {
-      return [year, month].join(joinChar);
-    }
-    return [year, month, day].join(joinChar);
-  }
-
-  random(min, max) {
+  random = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  randomToBool() {
+  randomToBool = ()  => {
     return this.random(0, 1) === 0;
   }
 
-  getName(index) {
+  getName = (index) => {
     const name = names[index];
     return name;
   }
+
+  getAge = (birthDateString) => {
+    const today = new Date();
+    const birthDate = new Date(birthDateString);
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+  }
+
   /**
    * 
    * @param {*} min 例：1980-1-1
    * @param {*} max  例：1985-12-31
    */
-  getRandomDate(min, max, joinFormat = '/') {
+  getRandomDate = (min, max, joinFormat = '/') => {
     const minTime = new Date(min).getTime();
     const maxTime = new Date(max).getTime();
     
     const num = this.random(minTime, maxTime);
     const date = new Date(num);
-    return stringFormat.dateToFormatString(date, joinFormat);
+    return stringFormatter.dateToFormatString(date, joinFormat);
   }
 
-  getRandomName() {
+  getRandomName = () => {
     const index = this.random(0, names.length - 1);
     const name = names[index];
 
     return name;
   }
 
-  randomByLengthWithZero(length) {
+  randomByLengthWithZero = (length) => {
     if (length <= 0 ) throw new Error('must be argumentname ="length" is greater than 0.');
     // 最大文字数分９埋めとします。
     const max = parseInt(''.padStart(length, 9));
@@ -66,7 +66,7 @@ class Generator {
   /**
    * 正規表現面倒だから東京の電話のみ返却
    */
-  getRandomPhoneNumber(withHyphen = false) {
+  getRandomPhoneNumber = (withHyphen = false) => {
     const phoneNumberPrefix = '03';
 
     if (!withHyphen) {
@@ -80,5 +80,5 @@ class Generator {
   }
 }
 
-const generator = new Generator();
-export default generator;
+const valueFactory = new ValueFactory();
+export default valueFactory;

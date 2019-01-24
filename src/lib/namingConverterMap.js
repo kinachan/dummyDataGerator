@@ -1,4 +1,4 @@
-import stringFormat from '../lib/stringFormat';
+import stringFormatter from './StringFormatter';
 export const CASES = {
   Camel: 0,
   Snake: 1,
@@ -6,7 +6,7 @@ export const CASES = {
 };
 
 export const converterMap = {
-  [CASES.Camel]: stringFormat.toCamelCase,
-  [CASES.Snake]: stringFormat.toSnakeCase,
-  [CASES.Pascal]: stringFormat.toPascalCase,
+  [CASES.Camel]: stringFormatter.toCamelCase,
+  [CASES.Snake]: stringFormatter.toSnakeCase,
+  [CASES.Pascal]: stringFormatter.toPascalCase,
 };

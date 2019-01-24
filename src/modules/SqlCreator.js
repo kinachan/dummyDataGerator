@@ -1,6 +1,7 @@
 import {CASES, converterMap} from '../lib/namingConverterMap';
-import creator from '../lib/creator';
-import * as constant from '../lib/constant/constant';
+import fileCreator from '../lib/fileCreator';
+import {currentTimeStamp} from '../lib/constant/constant';
+import {getTrackableValue} from '../lib/trackableUtil';
 
 class SqlCreator {
   constructor(tableName, columns, data, mappingObjects = null, lower = false, toCamelChange = true) {
@@ -15,24 +16,19 @@ class SqlCreator {
     this.valuesPrefix = lower ? this.orignalValuesPrefix.toLowerCase() : this.orignalValuesPrefix;
     this.toCamelChange = toCamelChange;
   }
-  toCamel(value){
-    return converterMap[CASES.Camel](value);
-  }
 
-  getValue (origKey) {
+  getQueryValue = (origKey) => {
     let key = origKey;
     if (this.toCamelChange) {
-      key = this.toCamel(origKey);
+      key = converterMap[CASES.Camel](value);
     }
-    let value = this.data[key];
-    if (value == null) {
-      value = this.getValueByDiffrentKey(origKey, key);
-    }
-    return this.changeValueByType(key, value);
+    let value = key === origKey ? this.data[key] : this.getValueByDiffrentKey(origKey, key);
+    if (value == null) value = this.getSpecialValue(key);
+    return this.changeValueByType(value);
   }
 
-  changeValueByType(key, value) {
-    if (value == null) return this.appendSpecialValue(key, value);
+  changeValueByType = (value) => {
+    if (value === currentTimeStamp) return value;
     const type = typeof value;
     switch (type) {
       case 'string':
@@ -43,54 +39,36 @@ class SqlCreator {
         return value;
     }
   }
-  appendSpecialValue(key, value) {
-    if (value != null) return value;
-  
-    const createdOn = this.toCamelChange ? this.toCamel('created_on') : 'created_on';
-    const updatedOn = this.toCamelChange ? this.toCamel('updated_on') : 'updated_on';
-    const createdBy = this.toCamelChange ? this.toCamel('created_by') : 'created_by';
-    const updatedBy = this.toCamelChange ? this.toCamel('updated_by') : 'updated_by';
-  
-    if (key === createdOn || key === updatedOn) {
-      return constant.currentTimeStamp;
-    }
-    if (key === createdBy || key === updatedBy) {
-      return constant.dummyUUID;
-    }
-    return null;
+
+  getSpecialValue = key => {
+    return getTrackableValue(key);
   }
-  getValueByDiffrentKey (originalKey, key) {
+
+  getValueByDiffrentKey = (originalKey, key) => {
     if (this.mappingObjects == null) return null;
     let dataObj = this.mappingObjects.find(x =>x.key === originalKey);
     if (dataObj == null) {
       dataObj = this.mappingObjects.find(x =>x.key === key);
       if (dataObj == null) return null;
     };
-  
     return this.data[dataObj.value];
   }
-  create(writeSql = true) {
-    const columnsString = this.columns.join(', ');
-    const array = [];
-    const nullList = [];
-  
-    this.columns.forEach((originalKey, index) => {
-      const value = this.getValue(originalKey);
-      if (value == null) {
-        nullList.push({originalKey, index});
-      } else {
-        array.push(value)
-      }
+
+  /**
+   * shouldWriteFile = true SQLファイルに書き起こすか？
+   */
+  createQuery = (shouldWriteFile = true) => {
+    const insertValues = [];
+ 
+    this.columns.forEach((originalKey) => {
+      const value = this.getQueryValue(originalKey);
+      insertValues.push(value)
     });
-    let result = `${this.tablePrefix} ${this.tableName} (${columnsString}) ${this.valuesPrefix} (${array.join(',')});`;
-    if (writeSql) {
-      creator.writeSql(`${this.tableName}.sql`, result);
+    let query = `${this.tablePrefix} ${this.tableName} (${this.columns.join(', ')}) ${this.valuesPrefix} (${insertValues.join(',')});`;
+    if (shouldWriteFile) {
+      fileCreator.writeSql(`${this.tableName}.sql`, query);
     }
-    if (nullList.length > 0) {
-      console.log('マッピングされなかったオブジェクトが見つかりました。');
-      console.log(JSON.stringify(nullList, null, 2));
-    }
-    return result;
+    return query;
   }
 }
 export default SqlCreator;

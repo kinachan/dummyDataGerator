@@ -1,16 +1,16 @@
 import fs from 'fs';
 
-class Creator {
+class FileCreator {
   constructor() {
     this.rootPath = './dist/';
   }
-  existsSync(rootPath = null) {
+  existsSync =(rootPath = null) => {
     if (!fs.existsSync(rootPath || this.rootPath)) {
       fs.mkdirSync(rootPath || this.rootPath);
     }
   }
 
-  writeJson(fileName, obj, rootPath = null) {
+  writeJson = (fileName, obj, rootPath = null) => {
     const json = JSON.stringify(obj, null, 2);
     this.existsSync(rootPath);
 
@@ -19,12 +19,12 @@ class Creator {
     writer.end();
   }
 
-  writeSql(fileName, string, rootPath = null){
+  writeSql = (fileName, string, rootPath = null) => {
     this.existsSync(rootPath);
     fs.writeFileSync(`${rootPath || this.rootPath}${fileName}`, string,{encoding: 'utf8'});
   }
 
-  writeCSharp(fileName, obj, rootPath = null) {
+  writeCSharp = (fileName, obj, rootPath = null)  => {
     this.existsSync(rootPath);
     const writer = fs.createWriteStream(`${rootPath || this.rootPath}${fileName}`, 'utf8');
     writer.write(obj.join('\r\n'));
@@ -32,5 +32,5 @@ class Creator {
   }
 }
 
-const creator = new Creator();
-export default creator;
+const fileCreator = new FileCreator();
+export default fileCreator;

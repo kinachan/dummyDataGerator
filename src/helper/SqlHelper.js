@@ -1,19 +1,18 @@
 import SqlCreator from '../modules/SqlCreator';
-import Creator from '../lib/creator';
+import fileCreator from '../lib/fileCreator';
 
 class SqlHelper {
-  createUseMap(tableName){
-    return (result) => {
-      const data = result.defaultModel;
-      const columns = Object.keys(data);
+  createUseMap = (tableName) => {
+    return (model) => {
+      const columns = Object.keys(model.data);
     
-      const sql = new SqlCreator(tableName, columns, data, null, false, false);
-      return sql.create(false);
+      const sql = new SqlCreator(tableName, columns, model.data, null, false, false);
+      return sql.createQuery(false);
     }
   }
 
-  writeSql(stringResults, fileName) {
-    Creator.writeSql(`${fileName}.sql`, stringResults.join('\n'));
+  writeSql = (queries, fileName) => {
+    fileCreator.writeSql(`${fileName}.sql`, queries.join('\n'));
   }
 }
 export default SqlHelper;

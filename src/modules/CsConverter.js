@@ -1,51 +1,60 @@
 
-import {converterMap} from '../lib/namingConverterMap';
-import creator from '../lib/creator';
+import {converterMap, CASES} from '../lib/namingConverterMap';
+import fileCreator from '../lib/fileCreator';
 import {isObject, isUUID} from '../lib/commonlib';
+import {getTrackableType} from '../lib/trackableUtil';
 
-const convertObject = (key, value) => {
-  if (isObject(value)) {
-    return 'Class'; // クラス名は手動で指定するしかない？
+
+class CSharpConveter {
+  constructor(fileName, model, ignoreNullValue = true, convertCase = CASES.Pascal) {
+    this.fileName = fileName;
+    this.model = model;
+    this.ignoreNullValue = ignoreNullValue;
+    this.convertFunc = converterMap[convertCase];
   }
-  if (Array.isArray(value)) {
-    return 'List<>';
+
+  getTrackableValues = (key) => {
+    return getTrackableType(key);
   }
-  throw `Error args: ${value}`;
+
+  getType = (value) => {
+    if (isObject(value)) return 'Class';
+    if (Array.isArray(value)) return 'List<>';
+    if (isUUID(value)) return 'Guid';
+
+    switch (typeof value) {
+      case 'string':
+        return 'string';
+      case 'number':
+        return 'int';
+      case 'boolean':
+        return 'bool';
+      default:
+    }
+
+    if (this.ignoreNullValue) return null;
+    throw `Error args: ${value}`;
+  }
+
+  createProperty = (key, value) => {
+    const prefix = 'public';
+    let type = this.getType(value);
+    if (type == null) type = this.getTrackableValues(key);
+  
+    const property = this.convertFunc(key);
+    const suffix = '{get; set; }';
+  
+    return `${prefix} ${type} ${property} ${suffix}`;
+  };
+
+  createProperties = (shouldWriteFile = true) => {
+    const lines = [];
+      Object.keys(this.model).forEach((key) => {
+        const line = this.createProperty(key, this.model[key]);
+        lines.push(line);
+      });
+      if (shouldWriteFile) fileCreator.writeCSharp(this.fileName, lines);
+      return lines.join(('\n'));
+  };
 }
-
-const getType = (key, value) => {
-  if (isUUID(value)) return 'Guid';
-  switch (typeof value) {
-    case 'string':
-      return 'string';
-    case 'number':
-      return 'int';
-    case 'boolean':
-      return 'bool';
-    default:
-      return convertObject(key, value);
-  }
-}
-
-const createLine = (convertCase, key, value) => {
-  const prefix = 'public';
-
-  const type = getType(key, value);
-
-  const convertFunc = converterMap[convertCase];
-  const property = convertFunc(key);
-  const suffix = '{get; set; }';
-
-  return `${prefix} ${type} ${property} ${suffix}`;
-};
-
-
-const changeModels = (convertCase, obj, fileName = 'exsample.cs') => {
-  const lines = [];
-    Object.keys(obj).forEach((key) => {
-      const line = createLine(convertCase, key, obj[key]);
-      lines.push(line);
-    });
-    creator.writeCSharp(fileName, lines);
-};
-export default changeModels;
+export default CSharpConveter;

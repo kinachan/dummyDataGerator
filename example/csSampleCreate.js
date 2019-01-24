@@ -1,11 +1,11 @@
 import SampleModel from './sampleModel';
-import {CASES} from '../src/lib/namingConverterMap';
-import changeModel from '../src/modules/CsConverter';
+import CsConverter from '../src/modules/CsConverter';
 
 
 const model = new SampleModel();
 
-changeModel(CASES.Pascal, model.defaultModel, 'example.cs');
+const csConverter = new CsConverter('example.cs', model.data);
+csConverter.createProperties()
 
 // 実行コマンドは
 //  npm run start ./example/csSampleCreate

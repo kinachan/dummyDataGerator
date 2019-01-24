@@ -1,5 +1,5 @@
 import SampleModel from './sampleModel';
-import creator from '../src/lib/creator';
+import fileCreator from '../src/lib/fileCreator';
 
 const models = [];
 for (let i = 0; i < 5; i++) {
@@ -7,5 +7,5 @@ for (let i = 0; i < 5; i++) {
   models.push(model);
 }
 
-const data = models.map((model => model.defaultModel));
-creator.writeJson('sample.json', data);
+const data = models.map((model => model.data));
+fileCreator.writeJson('sample.json', data);

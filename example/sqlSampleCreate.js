@@ -10,8 +10,8 @@ for (let i = 0; i < 5; i++) {
 
 // SQLHELPERを使用して、modelsの数の分だけINSERTを作成
 const sqlHelper = new SqlHelper();
-const results = models.map((sqlHelper.createUseMap('sample')));
-sqlHelper.writeSql(results, 'sample');
+const queries = models.map((sqlHelper.createUseMap('sample')));
+sqlHelper.writeSql(queries, 'sample');
 
 // 実行コマンドは
 //  npm run start ./example/sqlSampleCreate

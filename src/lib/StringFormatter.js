@@ -3,7 +3,7 @@ class StringFormatter {
   constructor(){
 
   }
-  formatDate(dt, hasDay = true, joinChar = '-') {
+  formatDate = (dt, hasDay = true, joinChar = '-') => {
     let month = dt.getMonth() + 1;
     let day = dt.getDate();
     const year = dt.getFullYear().toString();
@@ -16,7 +16,7 @@ class StringFormatter {
     return [year, month, day].join(joinChar);
   }
 
-  dateToFormatString(date, joinFormat = '/'){
+  dateToFormatString = (date, joinFormat = '/') => {
     const numbers = [];
     numbers.push(date.getFullYear().toString());
     numbers.push(("00" + (date.getMonth()+1)).slice(-2));
@@ -27,7 +27,7 @@ class StringFormatter {
   /**
    * キャメルケースへ変換
    */
-  toCamelCase(str) {
+  toCamelCase = (str) => {
     str = str.charAt(0).toLowerCase() + str.slice(1);
     return str.replace(/[-_](.)/g, (match, group1) => {
         return group1.toUpperCase();
@@ -39,8 +39,8 @@ class StringFormatter {
    * @param string
    * @return string
    */
-  toSnakeCase(str) {
-    const camel = stringFormat.toCamelCase(str);
+  toSnakeCase = (str) => {
+    const camel = this.toCamelCase(str);
     return camel.replace(/[A-Z]/g, (s) => {
       return "_" + s.charAt(0).toLowerCase();
     });
@@ -52,11 +52,11 @@ class StringFormatter {
    * @param string
    * @return string
    */
-  toPascalCase(str) {
-    const camel = stringFormat.toCamelCase(str);
+  toPascalCase = (str) => {
+    const camel = this.toCamelCase(str);
     return camel.charAt(0).toUpperCase() + camel.slice(1);
   }
 }
 
-const stringFormat = new StringFormatter();
-export default stringFormat;
+const stringFormatter = new StringFormatter();
+export default stringFormatter;
